@@ -96,7 +96,7 @@
 
 (defun ivy-describe-modes--do-action (cand)
   "Do action after ivy done with CAND."
-  (describe-variable (make-symbol cand)))
+  (describe-function (intern cand)))
 
 ;;;###autoload
 (defun ivy-describe-modes ()
