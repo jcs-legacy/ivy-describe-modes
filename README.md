@@ -4,6 +4,10 @@
 # ivy-describe-modes
 > Ivy interface to `describe-mode`.
 
+`ivy-describe-modes` provides a Ivy interface to Emacs’s `describe-mode`. 
+It lists the major mode, active minor modes, and inactive minor modes using Ivy, 
+and provides actions for each mode.
+
 ## Contribution
 
 If you would like to contribute to this project, you may either
