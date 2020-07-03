@@ -1,3 +1,3 @@
 (source melpa)
 
-(package-file "searcher.el")
+(package-file "ivy-describe-modes.el")
