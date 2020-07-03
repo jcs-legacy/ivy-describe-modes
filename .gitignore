@@ -1,5 +1,6 @@
 # ignore these directories.
 /.git
+/.cask
 /recipes
 /test
 ivy-describe-modes-pkg.el

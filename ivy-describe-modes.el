@@ -7,7 +7,7 @@
 ;; Description: Ivy interface to `describe-mode`.
 ;; Keyword:
 ;; Version: 0.1.1
-;; Package-Requires: ((emacs "24.3"))
+;; Package-Requires: ((emacs "24.3") (ivy "0.13.0"))
 ;; URL: https://github.com/jcs-elpa/ivy-describe-modes
 
 ;; This file is NOT part of GNU Emacs.
@@ -31,6 +31,8 @@
 ;;
 
 ;;; Code:
+
+(require 'ivy)
 
 (defgroup ivy-describe-modes nil
   "Ivy interface to `describe-mode`."
