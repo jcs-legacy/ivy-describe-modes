@@ -7,7 +7,7 @@
 ;; Description: Ivy interface to `describe-mode`.
 ;; Keyword:
 ;; Version: 0.1.2
-;; Package-Requires: ((emacs "24.3") (ivy "0.13.0"))
+;; Package-Requires: ((emacs "24.4") (ivy "0.13.0"))
 ;; URL: https://github.com/jcs-elpa/ivy-describe-modes
 
 ;; This file is NOT part of GNU Emacs.
@@ -43,74 +43,66 @@
 (defconst ivy-describe-modes--prompt "[Describe Modes]: "
   "Prompt string when using `ivy-describe-modes'.")
 
-(defconst ivy-describe-modes--apropos-name "*Apropos*"
-  "Buffer name when called apropos.")
+(defun ivy-describe-modes--is-contain-list-string (in-list in-str)
+  "Check if IN-STR contain in any string in the IN-LIST."
+  (cl-some (lambda (lb-sub-str) (string-match-p (regexp-quote lb-sub-str) in-str)) in-list))
 
-(defvar ivy-describe-modes--apropos-buffer nil
-  "Record the apropos buffer.")
+(defun ivy-describe-modes--minor-mode-list ()
+  "Get a list of minor modes."
+  (let ($list)
+    (mapc (lambda ($mode)
+            (condition-case nil
+                (when (symbolp $mode)
+                  (setq $list (cons (format "%s" $mode) $list)))
+              (error nil)))
+          minor-mode-list)
+    (sort $list 'string<)))
 
-(defvar ivy-describe-modes--cache nil
-  "Cache the mode list.")
-
-(defun ivy-describe-modes--clean-up ()
-  "Do clean up after command."
-  (when ivy-describe-modes--apropos-buffer
-    (kill-buffer ivy-describe-modes--apropos-buffer)
-    (setq ivy-describe-modes--apropos-buffer nil)))
-
-(defun ivy-describe-modes--mute-apply (fnc &rest args)
-  "Execute FNC with ARGS without message."
-  (let ((message-log-max nil))
-    (with-temp-message (or (current-message) nil)
-      (let ((inhibit-message t))
-        (apply fnc args)))))
-
-(defun ivy-describe-modes--major-mode-list ()
-  "Return a list of major modes."
-  (let ((cmd-success t) (lst '()) (start -1) (end -1) (str nil)
-        (buf-str nil))
-    (save-window-excursion
-      (when (get-buffer ivy-describe-modes--apropos-name)
-        (kill-buffer ivy-describe-modes--apropos-name))
-      (ivy-describe-modes--mute-apply
-       (lambda ()
-         (setq cmd-success (ignore-errors (apropos-command "-mode$"))))))
-    (when cmd-success
-      (with-current-buffer ivy-describe-modes--apropos-name
-        (setq buf-str (buffer-string))
-        (setq ivy-describe-modes--apropos-buffer (current-buffer))
-        (goto-char (point-min))
-        (while (re-search-forward "-mode[ \t]*M-x" nil t)
-          (setq start (1- (line-beginning-position)))
-          (goto-char start)
-          (re-search-forward "[ \t]" nil t)
-          (setq end (- (point) 2))
-          (setq str (substring buf-str start end))
-          (push str lst)
-          (forward-line 1))))
-    lst))
-
-(defun ivy-describe-modes--candidates ()
-  "List of canddidates, all modes."
-  (unless ivy-describe-modes--cache
-    (setq ivy-describe-modes--cache (ivy-describe-modes--major-mode-list)))
-  ivy-describe-modes--cache)
+(defun ivy-describe-modes--predicate (ob)
+  "Predciate to filter OB to major/minor mode list."
+  (and (functionp ob)
+       (string-suffix-p "-mode" (format "%s" ob))))
 
 (defun ivy-describe-modes--do-action (cand)
   "Do action after ivy done with CAND."
   (describe-function (intern cand)))
 
 ;;;###autoload
+(defun ivy-describe-modes-minor ()
+  "Describe modes with only minor modes."
+  (interactive)
+  (ivy-read ivy-describe-modes--prompt
+            (ivy-describe-modes--minor-mode-list)
+            :require-match t
+            :sort t
+            :predicate #'ivy-describe-modes--predicate
+            :action #'ivy-describe-modes--do-action))
+
+;;;###autoload
+(defun ivy-describe-modes-major ()
+  "Describe modes with only major modes."
+  (interactive)
+  (let ((min-lst (ivy-describe-modes--minor-mode-list)))
+    (ivy-read ivy-describe-modes--prompt
+              obarray
+              :require-match t
+              :sort t
+              :predicate
+              (lambda (ob)
+                (and (ivy-describe-modes--predicate ob)
+                     (not (ivy-describe-modes--is-contain-list-string min-lst (format "%s" ob)))))
+              :action #'ivy-describe-modes--do-action)))
+
+;;;###autoload
 (defun ivy-describe-modes ()
   "A convenient Ivy version of `describe-mode'."
   (interactive)
-  (unwind-protect
-      (ivy-read ivy-describe-modes--prompt
-                (ivy-describe-modes--candidates)
-                :require-match t
-                :sort t
-                :action #'ivy-describe-modes--do-action)
-    (ivy-describe-modes--clean-up)))
+  (ivy-read ivy-describe-modes--prompt
+            obarray
+            :require-match t
+            :sort t
+            :predicate #'ivy-describe-modes--predicate
+            :action #'ivy-describe-modes--do-action))
 
 (provide 'ivy-describe-modes)
 ;;; ivy-describe-modes.el ends here
