@@ -112,6 +112,5 @@
                 :action #'ivy-describe-modes--do-action)
     (ivy-describe-modes--clean-up)))
 
-
 (provide 'ivy-describe-modes)
 ;;; ivy-describe-modes.el ends here
