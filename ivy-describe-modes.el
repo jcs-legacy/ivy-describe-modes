@@ -5,7 +5,7 @@
 
 ;; Author: Shen, Jen-Chieh <jcs090218@gmail.com>
 ;; Description: Ivy interface to `describe-mode`.
-;; Keyword:
+;; Keyword: modes
 ;; Version: 0.2.0
 ;; Package-Requires: ((emacs "24.4") (ivy "0.13.0"))
 ;; URL: https://github.com/jcs-elpa/ivy-describe-modes
