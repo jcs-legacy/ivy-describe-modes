@@ -1,6 +1,6 @@
 ;;; ivy-describe-modes.el --- Ivy interface to `describe-mode`  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020  Shen, Jen-Chieh
+;; Copyright (C) 2020-2024  Shen, Jen-Chieh
 ;; Created date 2020-07-02 19:56:29
 
 ;; Author: Shen, Jen-Chieh <jcs090218@gmail.com>
